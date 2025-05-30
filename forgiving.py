@@ -103,10 +103,10 @@ else:
     st.markdown(
         f"""
         <div style="background:{WHITE};padding:0;text-align:center;">
-            <div style="color:{PINK}; font-family:{STR_FONT}; font-size:88px; font-weight:bold; margin-top:120px;">太好了！</div>
+            <div style="color:{PINK}; font-family:{STR_FONT}; font-size:88px; font-weight:bold; margin-top:120px;">
+                太好了！
+            </div>
         </div>
-        """, unsafe_allow_html=True
-    ); font-size:88px; font-weight:bold; margin-top:120px;">太好了！</div>
-        </div>
-        """, unsafe_allow_html=True
+        """,
+        unsafe_allow_html=True
     )
