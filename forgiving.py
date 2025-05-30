@@ -10,16 +10,10 @@ if "not_accept_count" not in st.session_state:
 if "accepted" not in st.session_state:
     st.session_state["accepted"] = False
 
-def on_not_accept():
-    if st.session_state["not_accept_count"] < 4:
-        st.session_state["not_accept_count"] += 1
-        st.experimental_rerun()  # 只有在这里调用
+def get_btn_size(n, max_n=4, min_size=18, max_size=38):
+    step = (max_size - min_size) / (max_n - 1)
+    return max_size - step * n, min_size + step * n
 
-def on_accept():
-    st.session_state["accepted"] = True
-    st.experimental_rerun()  # 只有在这里调用
-
-# 展示主页面
 if not st.session_state["accepted"]:
     st.markdown(
         f"""
@@ -32,12 +26,8 @@ if not st.session_state["accepted"]:
     )
     n = st.session_state["not_accept_count"]
     max_n = 4
-    min_size = 18  # px
-    max_size = 38  # px
-
-    def get_btn_size(n, max_n, min_size=18, max_size=38):
-        step = (max_size-min_size) / (max_n-1)
-        return max_size - step * n, min_size + step * n
+    min_size = 18
+    max_size = 38
 
     if n < max_n:
         no_size, yes_size = get_btn_size(n, max_n, min_size, max_size)
@@ -57,7 +47,7 @@ if not st.session_state["accepted"]:
         c1, c2, c3 = st.columns([1,0.2,1])
         with c1:
             if st.button("❌ 不接受", key=f"no{n}", help="点我会变小哦~", use_container_width=True):
-                on_not_accept()
+                st.session_state["not_accept_count"] += 1
             st.markdown(
                 f"""
                 <style>
@@ -71,7 +61,7 @@ if not st.session_state["accepted"]:
             pass
         with c3:
             if st.button("💗 接受", key=f"yes{n}", help="点我会变大哦~", use_container_width=True):
-                on_accept()
+                st.session_state["accepted"] = True
             st.markdown(
                 f"""
                 <style>
@@ -99,7 +89,7 @@ if not st.session_state["accepted"]:
         col1, col2, col3 = st.columns([1,2,1])
         with col2:
             if st.button("💗 接受", key="onlyyes", help="点我！", use_container_width=True):
-                on_accept()
+                st.session_state["accepted"] = True
             st.markdown(
                 f"""
                 <style>
@@ -114,6 +104,9 @@ else:
         f"""
         <div style="background:{WHITE};padding:0;text-align:center;">
             <div style="color:{PINK}; font-family:{STR_FONT}; font-size:88px; font-weight:bold; margin-top:120px;">太好了！</div>
+        </div>
+        """, unsafe_allow_html=True
+    ); font-size:88px; font-weight:bold; margin-top:120px;">太好了！</div>
         </div>
         """, unsafe_allow_html=True
     )
