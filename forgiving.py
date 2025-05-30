@@ -11,10 +11,16 @@ if "accepted" not in st.session_state:
     st.session_state["accepted"] = False
 
 def on_not_accept():
-    st.session_state["not_accept_count"] += 1
+    if st.session_state["not_accept_count"] < 4:
+        st.session_state["not_accept_count"] += 1
 
 def on_accept():
     st.session_state["accepted"] = True
+
+# 计算按钮大小
+def get_btn_size(n, max_n, min_size=18, max_size=38):
+    step = (max_size-min_size) / (max_n-1)
+    return max_size - step * n, min_size + step * n
 
 # 展示主页面
 if not st.session_state["accepted"]:
@@ -27,16 +33,15 @@ if not st.session_state["accepted"]:
         """,
         unsafe_allow_html=True,
     )
-    # 计算按钮大小
     n = st.session_state["not_accept_count"]
     max_n = 4
     min_size = 18  # px
     max_size = 38  # px
+
     if n < max_n:
-        # 按钮大小等比缩放
-        btn_size = max_size - (max_size-min_size) * n/(max_n-1) if max_n > 1 else min_size
-        btn_style = f"""
-            font-size: {btn_size}px;
+        no_size, yes_size = get_btn_size(n, max_n, min_size, max_size)
+        btn_style = lambda fs: f"""
+            font-size: {fs}px;
             font-family: {STR_FONT};
             color: {PINK};
             background: {WHITE};
@@ -48,46 +53,31 @@ if not st.session_state["accepted"]:
             box-shadow: 0 4px 16px #ffd1e7;
             transition: 0.2s;
         """
-        accept_size = min_size + (max_size - min_size) * n/(max_n-1) if max_n > 1 else max_size
-        accept_btn_style = f"""
-            font-size: {accept_size}px;
-            font-family: {STR_FONT};
-            color: {PINK};
-            background: {WHITE};
-            border-radius: 32px;
-            border: 2px solid {PINK};
-            font-weight:bold;
-            padding: 18px 32px;
-            margin: 16px;
-            box-shadow: 0 4px 16px #ffd1e7;
-            transition: 0.2s;
-        """
-        # 三列排布，按钮对称
-        c1, c2, c3 = st.columns([1,1,1])
+        c1, c2, c3 = st.columns([1,0.2,1])
         with c1:
-            # 不接受按钮
-            if st.button("❌ 不接受", key=f"no{n}", help="点我会变小哦~"):
+            if st.button("❌ 不接受", key=f"no{n}", help="点我会变小哦~", use_container_width=True):
                 on_not_accept()
+                st.experimental_rerun()
             st.markdown(
                 f"""
                 <style>
                 div[data-testid="column"]:nth-of-type(1) button {{
-                    {btn_style}
+                    {btn_style(no_size)}
                 }}
                 </style>
                 """, unsafe_allow_html=True
             )
         with c2:
-            st.write("")  # 空列居中
+            pass
         with c3:
-            # 接受按钮
-            if st.button("💗 接受", key=f"yes{n}", help="点我会变大哦~"):
+            if st.button("💗 接受", key=f"yes{n}", help="点我会变大哦~", use_container_width=True):
                 on_accept()
+                st.experimental_rerun()
             st.markdown(
                 f"""
                 <style>
                 div[data-testid="column"]:nth-of-type(3) button {{
-                    {accept_btn_style}
+                    {btn_style(yes_size)}
                 }}
                 </style>
                 """, unsafe_allow_html=True
@@ -95,24 +85,24 @@ if not st.session_state["accepted"]:
     else:
         # 只显示巨大的接受按钮且居中
         big_btn_style = f"""
-            font-size: 48px;
+            font-size: 52px;
             font-family: {STR_FONT};
             color: {PINK};
             background: {WHITE};
             border-radius: 42px;
             border: 3px solid {PINK};
             font-weight:bold;
-            padding: 28px 80px;
+            padding: 32px 100px;
             margin: 40px 0;
             box-shadow: 0 6px 32px #ffd1e7;
         """
         st.write("")
         st.write("")
-        # 居中显示
         col1, col2, col3 = st.columns([1,2,1])
         with col2:
-            if st.button("💗 接受", key="onlyyes", help="点我！"):
+            if st.button("💗 接受", key="onlyyes", help="点我！", use_container_width=True):
                 on_accept()
+                st.experimental_rerun()
             st.markdown(
                 f"""
                 <style>
