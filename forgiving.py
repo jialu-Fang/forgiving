@@ -1,121 +1,133 @@
 import streamlit as st
 
-# 配色和字体
 PINK = "#FF69B4"
-LIGHT_PINK = "#FFB6C1"
 WHITE = "#FFFFFF"
 STR_FONT = "'Comic Sans MS', 'Baloo', 'Chilanka', 'Quicksand', cursive, sans-serif"
-st.set_page_config(page_title="原谅我", page_icon="🍓", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="原谅我", page_icon="🍓", layout="centered")
 
-# Session State 初始化
-if 'not_accept_count' not in st.session_state:
-    st.session_state['not_accept_count'] = 0
-if 'accepted' not in st.session_state:
-    st.session_state['accepted'] = False
+if "not_accept_count" not in st.session_state:
+    st.session_state["not_accept_count"] = 0
+if "accepted" not in st.session_state:
+    st.session_state["accepted"] = False
 
-def not_accept():
-    st.session_state['not_accept_count'] += 1
+def on_not_accept():
+    st.session_state["not_accept_count"] += 1
 
-def accept():
-    st.session_state['accepted'] = True
+def on_accept():
+    st.session_state["accepted"] = True
 
-# 自定义可爱按钮的CSS
-st.markdown(
-    f"""
-    <style>
-    .cute-btn {{
-        display: inline-block;
-        padding: 16px 48px;
-        font-size: 28px;
-        font-weight: bold;
-        color: {WHITE};
-        background: linear-gradient(90deg, {PINK} 30%, {LIGHT_PINK} 100%);
-        border: none;
-        border-radius: 32px;
-        box-shadow: 0 4px 24px #ffd1e7;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin: 12px 20px;
-        font-family: {STR_FONT};
-        letter-spacing: 2px;
-    }}
-    .cute-btn:hover {{
-        background: linear-gradient(90deg, {LIGHT_PINK} 30%, {PINK} 100%);
-        color: {PINK};
-        border: 2px solid {PINK};
-        box-shadow: 0 6px 32px {LIGHT_PINK};
-        transform: scale(1.07);
-    }}
-    /* 隐藏原生 stButton */
-    div.stButton > button {{
-        display: none;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# 主界面
-st.markdown(
-    f"""
-    <div style="background:{WHITE};padding:0;border-radius:20px;text-align:center;">
-        <div style="font-size:72px; margin-top:30px;">🍓</div>
-        <div style="color:{PINK}; font-family:{STR_FONT}; font-size:36px; font-weight:bold;">原谅我</div>
-    </div>
-    """, unsafe_allow_html=True
-)
-
-if not st.session_state['accepted']:
-    # 按钮区
-    c1, c2, c3 = st.columns([1,2,1])
-    with c1:
-        if st.session_state['not_accept_count'] < 4:
-            scale = 28 - 4 * st.session_state['not_accept_count']
-            st.markdown(
-                f"""<button class="cute-btn" style="font-size:{scale}px" onclick="window.parent.postMessage({{btn:'notaccept'}}, '*')">❌ 不接受</button>""",
-                unsafe_allow_html=True,
-            )
-    with c2:
-        accept_scale = 28 + 6 * st.session_state['not_accept_count'] if st.session_state['not_accept_count'] < 4 else 48
-        btn_html = f"""<button class="cute-btn" style="font-size:{accept_scale}px" onclick="window.parent.postMessage({{btn:'accept'}}, '*')">💗 接受</button>"""
-        st.markdown(btn_html, unsafe_allow_html=True)
-
-    # Streamlit 事件监听（交互适配）
-    st.markdown("""
-    <script>
-    // 只添加一次事件监听
-    if (!window.buttonListenerAdded) {
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.btn === 'notaccept') {
-                window.parent.postMessage({streamlitSetComponentValue: {key: "notaccept", value: true}}, '*');
-            }
-            if (event.data && event.data.btn === 'accept') {
-                window.parent.postMessage({streamlitSetComponentValue: {key: "accept", value: true}}, '*');
-            }
-        }, false);
-        window.buttonListenerAdded = true;
-    }
-    </script>
-    """, unsafe_allow_html=True)
-
-    # 使用 Streamlit 的隐藏按钮来触发事件
-    notaccept = st.button("notaccept", key="btn_notaccept")
-    acceptbtn = st.button("accept", key="btn_accept")
-    # 通过 session_state 响应 html 按钮
-    if st.session_state.get("notaccept", False):
-        not_accept()
-        st.session_state["notaccept"] = False
-        st.experimental_rerun()
-    if st.session_state.get("accept", False):
-        accept()
-        st.session_state["accept"] = False
-        st.experimental_rerun()
-
-else:
+# 展示主页面
+if not st.session_state["accepted"]:
     st.markdown(
         f"""
         <div style="background:{WHITE};padding:0;text-align:center;">
-            <div style="color:{PINK}; font-family:{STR_FONT}; font-size:72px; font-weight:bold; margin-top:80px;">太好了！</div>
+            <div style="font-size:72px; margin-top:30px;">🍓</div>
+            <div style="color:{PINK}; font-family:{STR_FONT}; font-size:36px; font-weight:bold;">原谅我</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    # 计算按钮大小
+    n = st.session_state["not_accept_count"]
+    max_n = 4
+    min_size = 18  # px
+    max_size = 38  # px
+    if n < max_n:
+        # 按钮大小等比缩放
+        btn_size = max_size - (max_size-min_size) * n/(max_n-1) if max_n > 1 else min_size
+        btn_style = f"""
+            font-size: {btn_size}px;
+            font-family: {STR_FONT};
+            color: {PINK};
+            background: {WHITE};
+            border-radius: 32px;
+            border: 2px solid {PINK};
+            font-weight:bold;
+            padding: 18px 32px;
+            margin: 16px;
+            box-shadow: 0 4px 16px #ffd1e7;
+            transition: 0.2s;
+        """
+        accept_size = min_size + (max_size - min_size) * n/(max_n-1) if max_n > 1 else max_size
+        accept_btn_style = f"""
+            font-size: {accept_size}px;
+            font-family: {STR_FONT};
+            color: {PINK};
+            background: {WHITE};
+            border-radius: 32px;
+            border: 2px solid {PINK};
+            font-weight:bold;
+            padding: 18px 32px;
+            margin: 16px;
+            box-shadow: 0 4px 16px #ffd1e7;
+            transition: 0.2s;
+        """
+        # 三列排布，按钮对称
+        c1, c2, c3 = st.columns([1,1,1])
+        with c1:
+            # 不接受按钮
+            if st.button("❌ 不接受", key=f"no{n}", help="点我会变小哦~"):
+                on_not_accept()
+            st.markdown(
+                f"""
+                <style>
+                div[data-testid="column"]:nth-of-type(1) button {{
+                    {btn_style}
+                }}
+                </style>
+                """, unsafe_allow_html=True
+            )
+        with c2:
+            st.write("")  # 空列居中
+        with c3:
+            # 接受按钮
+            if st.button("💗 接受", key=f"yes{n}", help="点我会变大哦~"):
+                on_accept()
+            st.markdown(
+                f"""
+                <style>
+                div[data-testid="column"]:nth-of-type(3) button {{
+                    {accept_btn_style}
+                }}
+                </style>
+                """, unsafe_allow_html=True
+            )
+    else:
+        # 只显示巨大的接受按钮且居中
+        big_btn_style = f"""
+            font-size: 48px;
+            font-family: {STR_FONT};
+            color: {PINK};
+            background: {WHITE};
+            border-radius: 42px;
+            border: 3px solid {PINK};
+            font-weight:bold;
+            padding: 28px 80px;
+            margin: 40px 0;
+            box-shadow: 0 6px 32px #ffd1e7;
+        """
+        st.write("")
+        st.write("")
+        # 居中显示
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            if st.button("💗 接受", key="onlyyes", help="点我！"):
+                on_accept()
+            st.markdown(
+                f"""
+                <style>
+                div[data-testid="column"]:nth-of-type(2) button {{
+                    {big_btn_style}
+                }}
+                </style>
+                """, unsafe_allow_html=True
+            )
+else:
+    # 太好了页面
+    st.markdown(
+        f"""
+        <div style="background:{WHITE};padding:0;text-align:center;">
+            <div style="color:{PINK}; font-family:{STR_FONT}; font-size:88px; font-weight:bold; margin-top:120px;">太好了！</div>
         </div>
         """, unsafe_allow_html=True
     )
