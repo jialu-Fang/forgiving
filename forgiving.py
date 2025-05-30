@@ -13,14 +13,11 @@ if "accepted" not in st.session_state:
 def on_not_accept():
     if st.session_state["not_accept_count"] < 4:
         st.session_state["not_accept_count"] += 1
+        st.experimental_rerun()  # 只有在这里调用
 
 def on_accept():
     st.session_state["accepted"] = True
-
-# 计算按钮大小
-def get_btn_size(n, max_n, min_size=18, max_size=38):
-    step = (max_size-min_size) / (max_n-1)
-    return max_size - step * n, min_size + step * n
+    st.experimental_rerun()  # 只有在这里调用
 
 # 展示主页面
 if not st.session_state["accepted"]:
@@ -37,6 +34,10 @@ if not st.session_state["accepted"]:
     max_n = 4
     min_size = 18  # px
     max_size = 38  # px
+
+    def get_btn_size(n, max_n, min_size=18, max_size=38):
+        step = (max_size-min_size) / (max_n-1)
+        return max_size - step * n, min_size + step * n
 
     if n < max_n:
         no_size, yes_size = get_btn_size(n, max_n, min_size, max_size)
@@ -57,7 +58,6 @@ if not st.session_state["accepted"]:
         with c1:
             if st.button("❌ 不接受", key=f"no{n}", help="点我会变小哦~", use_container_width=True):
                 on_not_accept()
-                st.experimental_rerun()
             st.markdown(
                 f"""
                 <style>
@@ -72,7 +72,6 @@ if not st.session_state["accepted"]:
         with c3:
             if st.button("💗 接受", key=f"yes{n}", help="点我会变大哦~", use_container_width=True):
                 on_accept()
-                st.experimental_rerun()
             st.markdown(
                 f"""
                 <style>
@@ -83,7 +82,6 @@ if not st.session_state["accepted"]:
                 """, unsafe_allow_html=True
             )
     else:
-        # 只显示巨大的接受按钮且居中
         big_btn_style = f"""
             font-size: 52px;
             font-family: {STR_FONT};
@@ -102,7 +100,6 @@ if not st.session_state["accepted"]:
         with col2:
             if st.button("💗 接受", key="onlyyes", help="点我！", use_container_width=True):
                 on_accept()
-                st.experimental_rerun()
             st.markdown(
                 f"""
                 <style>
@@ -113,7 +110,6 @@ if not st.session_state["accepted"]:
                 """, unsafe_allow_html=True
             )
 else:
-    # 太好了页面
     st.markdown(
         f"""
         <div style="background:{WHITE};padding:0;text-align:center;">
